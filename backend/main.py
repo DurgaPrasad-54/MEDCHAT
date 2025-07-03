@@ -2,7 +2,7 @@ import os
 import logging
 import traceback
 from datetime import datetime
-
+import uvicorn
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
@@ -72,12 +72,6 @@ def health_check():
 @app.post("/register")
 async def register(user: User):
     try:
-        # Check if username already exists
-        existing_user = Model.find_one({"username": user.username})
-        if existing_user:
-            raise HTTPException(status_code=400, detail="Username already exists")
-        
-        # Check if email already exists
         existing_email = Model.find_one({"email": user.email})
         if existing_email:
             raise HTTPException(status_code=400, detail="Email already exists")
@@ -224,3 +218,6 @@ async def get_user_profile(token: str = Depends(oauth2_scheme)):
     except Exception as e:
         logging.error(f"Profile fetch error: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Unable to fetch profile")
+    
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

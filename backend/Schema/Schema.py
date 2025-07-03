@@ -6,7 +6,7 @@ class User(BaseModel):
     username: str
     email: str
     password: str
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)  # use utcnow for consistency
+    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     
 class Userlog(BaseModel):
     email: str

@@ -49,7 +49,7 @@ const Login = () => {
           }
 
           setTimeout(() => {
-            navigate('/'); // Redirect after login
+            navigate('/chat'); 
           }, 2000);
         } else {
           setMsg({

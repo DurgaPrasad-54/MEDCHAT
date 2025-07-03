@@ -23,6 +23,7 @@ def is_medical_query(prompt: str) -> bool:
         'health', 'medical', 'medicine', 'doctor', 'hospital', 'clinic', 'patient',
         'diagnosis', 'treatment', 'therapy', 'prescription', 'medication', 'drug',
         'surgery', 'operation', 'procedure', 'examination', 'test', 'screening',
+        'hi','hello','hey','hi there','howdy','greetings','what\'s up',
         
         # Symptoms and conditions
         'symptom', 'pain', 'ache', 'fever', 'headache', 'nausea', 'vomit', 'diarrhea',

@@ -197,27 +197,23 @@ async def get_history(token: str = Depends(oauth2_scheme)):
     except Exception as e:
         logging.error(f"History fetch error: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Unable to fetch history")
-
-@app.get("/user/profile")
-async def get_user_profile(token: str = Depends(oauth2_scheme)):
+@app.delete("/clearhistory")
+async def clear_history(token: str = Depends(oauth2_scheme)):
     user = verify_token(token)
     
     try:
-        user_data = Model.find_one(
-            {"_id": user["id"]},
-            {"password": 0, "_id": 0}  # Exclude password and _id
-        )
+        result = ModelHistory.delete_many({"userId": user["id"]})
         
-        if not user_data:
-            raise HTTPException(status_code=404, detail="User not found")
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="No history found to delete")
         
-        return {"user": user_data}
+        return {"message": "History cleared successfully", "deleted_count": result.deleted_count}
         
     except HTTPException:
         raise
     except Exception as e:
-        logging.error(f"Profile fetch error: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail="Unable to fetch profile")
+        logging.error(f"History clear error: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail="Unable to clear history")
     
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

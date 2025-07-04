@@ -22,8 +22,7 @@ def is_medical_query(prompt: str) -> bool:
         # General medical terms
         'health', 'medical', 'medicine', 'doctor', 'hospital', 'clinic', 'patient',
         'diagnosis', 'treatment', 'therapy', 'prescription', 'medication', 'drug',
-        'surgery', 'operation', 'procedure', 'examination', 'test', 'screening'
-        
+        'surgery', 'operation', 'procedure', 'examination', 'test', 'screening',
         
         # Symptoms and conditions
         'symptom', 'pain', 'ache', 'fever', 'headache', 'nausea', 'vomit', 'diarrhea',
@@ -59,7 +58,8 @@ def is_medical_query(prompt: str) -> bool:
         
         # Nutrition and wellness
         'nutrition', 'vitamin', 'mineral', 'diet', 'weight loss', 'weight gain',
-        'exercise', 'fitness', 'wellness', 'healthy lifestyle'
+        'exercise', 'fitness', 'wellness', 'healthy lifestyle',
+        
         # Greetings and common phrases
         'hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening',
         'how are you', 'how is it going', 'what\'s up', 'how can I help', 'nice to meet you',
@@ -91,24 +91,89 @@ def is_medical_query(prompt: str) -> bool:
     
     return False
 
+async def get_brief_general_response(prompt: str) -> str:
+    """
+    Use Gemini AI to generate a brief, friendly response for non-medical questions
+    """
+    # Create a prompt for Gemini to give a brief, friendly response
+    general_prompt = f"""You are a friendly AI assistant. The user asked: "{prompt}"
+
+Please provide a very brief, friendly response (1-2 sentences maximum) to acknowledge their question or comment. Be conversational and natural, but keep it short since you will redirect them to medical topics afterward.
+
+Examples:
+- For greetings: "Hello! Nice to meet you."
+- For weather questions: "I hope the weather is nice where you are!"
+- For general topics: "That's interesting!" or "That sounds great!"
+
+User question: {prompt}
+
+Provide only a brief, friendly response:"""
+    
+    headers = {
+        "Content-Type": "application/json",
+    }
+    
+    payload = {
+        "contents": [{
+            "parts": [{
+                "text": general_prompt
+            }]
+        }],
+        "generationConfig": {
+            "temperature": 0.7,  # Higher temperature for more natural conversational responses
+            "candidateCount": 1,
+            "maxOutputTokens": 100  # Keep it brief
+        }
+    }
+    
+    url = f"{BASE_URL}?key={API_KEY}"
+    
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(url, json=payload, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            
+            # Parse the response correctly
+            candidates = data.get("candidates", [])
+            if candidates and len(candidates) > 0:
+                content = candidates[0].get("content", {})
+                parts = content.get("parts", [])
+                if parts and len(parts) > 0:
+                    return parts[0].get("text", "That's interesting!").strip()
+                else:
+                    return "That's interesting!"
+            else:
+                return "That's interesting!"
+                
+    except Exception as e:
+        # Fallback to simple response if Gemini call fails
+        return "That's interesting!"
+
 async def ask_gemini(prompt: str) -> str:
     """
-    Process medical queries only. Non-medical queries are declined.
+    Process medical queries with full responses, and non-medical queries with brief responses + medical redirect.
     """
     # Check if the query is medical-related
     if not is_medical_query(prompt):
-        return """I'm sorry, but I can only assist with medical and health-related questions. 
+        # Get a brief response for the general question using Gemini AI
+        brief_response = await get_brief_general_response(prompt)
         
-Please ask me about:
+        # Add medical redirect
+        redirect_message = """
+
+However, I'm specifically designed to help with medical and health-related questions. Feel free to ask me about:
 • Health symptoms and conditions
-• Medical treatments and medications
+• Medical treatments and medications  
 • First aid and emergency care
 • Preventive healthcare
 • Nutrition and wellness
 • Mental health topics
 • General medical information
 
-For non-medical questions, please consult other resources or services."""
+Is there anything health-related I can help you with today?"""
+        
+        return brief_response + redirect_message
     
     # Add medical context to the prompt for better responses
     medical_prompt = f"""You are a helpful medical AI assistant. Please provide accurate, evidence-based medical information while emphasizing that this is for educational purposes only and not a substitute for professional medical advice. Always recommend consulting healthcare professionals for proper diagnosis and treatment.

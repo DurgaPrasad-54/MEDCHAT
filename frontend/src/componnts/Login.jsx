@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import './logres.css';
 
 const Login = () => {
   const API_PATH = import.meta.env.VITE_REACT_API_URL;
@@ -15,6 +16,8 @@ const Login = () => {
     text: '',
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   function handleinp(event) {
     const { name, value } = event.target;
     setData({
@@ -25,6 +28,8 @@ const Login = () => {
 
   function handlesubmit(event) {
     event.preventDefault();
+    setIsLoading(true);
+    setMsg({ type: '', text: '' });
 
     fetch(`${API_PATH}/login`, {
       method: 'POST',
@@ -49,8 +54,8 @@ const Login = () => {
           }
 
           setTimeout(() => {
-            navigate('/chat'); 
-          }, 2000);
+            navigate('/chat');
+          }, 1500);
         } else {
           setMsg({
             type: 'error',
@@ -63,38 +68,69 @@ const Login = () => {
           type: 'error',
           text: error.message || 'An error occurred. Please try again.',
         });
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }
 
   return (
     <div className="main">
-      <form className="form" onSubmit={handlesubmit}>
-        <input
-          className="inp"
-          type="email"
-          placeholder="Enter Your Email"
-          name="email"
-          value={data.email}
-          onChange={handleinp}
-          required
-        />
-        <input
-          className="inp"
-          type="password"
-          placeholder="Enter Password"
-          name="password"
-          value={data.password}
-          onChange={handleinp}
-          required
-        />
-        <p className="para">
-          Don't have an account? Please <Link to="/register">Register</Link>
-        </p>
-        <button className="btn" type="submit">
-          Login
-        </button>
-      </form>
-      <h1 className={msg.type}>{msg.text}</h1>
+      <div className="auth-container">
+        <div className="auth-header">
+          <div className="medical-icon">🏥</div>
+          <h1>Welcome Back</h1>
+          <p>Sign in to your Medical Chat Assistant account</p>
+        </div>
+
+        <form className="form" onSubmit={handlesubmit}>
+          <div className="input-group">
+            <input
+              id="email"
+              className="inp"
+              type="email"
+              placeholder="Enter your email address"
+              name="email"
+              value={data.email}
+              onChange={handleinp}
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="input-group">
+            <input
+              id="password"
+              className="inp"
+              type="password"
+              placeholder="Enter your password"
+              name="password"
+              value={data.password}
+              onChange={handleinp}
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <button 
+            className={`btn ${isLoading ? 'loading' : ''}`} 
+            type="submit"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Signing In...' : 'Sign In'}
+          </button>
+
+          <p className="para">
+            Don't have an account? <Link to="/register">Create Account</Link>
+          </p>
+        </form>
+
+        {msg.text && (
+          <div className={`message ${msg.type}`}>
+            {msg.text}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

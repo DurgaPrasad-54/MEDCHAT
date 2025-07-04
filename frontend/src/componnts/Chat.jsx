@@ -17,7 +17,7 @@ const Chat = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState([]);
-  const [showHistory, setShowHistory] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [error, setError] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -135,24 +135,19 @@ const Chat = () => {
     };
 
     setMessages([userMessage, botMessage]);
-    setShowHistory(false);
+    setShowSidebar(false); // Close sidebar on mobile after selecting
   };
 
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleString();
   };
 
-  const clearChat = () => {
+  const startNewChat = () => {
     setMessages([]);
     setError('');
+    setShowSidebar(false); // Close sidebar on mobile
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-  };
-
-  // New: Clear history from backend
   const clearHistory = async () => {
     if (!window.confirm('Are you sure you want to clear all chat history?')) return;
 
@@ -167,7 +162,7 @@ const Chat = () => {
 
       if (response.ok) {
         setHistory([]);
-        clearChat();
+        startNewChat();
         alert('Chat history cleared successfully.');
       } else if (response.status === 401) {
         localStorage.removeItem('token');
@@ -182,110 +177,131 @@ const Chat = () => {
     }
   };
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
   return (
     <div className="chat-container">
-      {/* Mobile Menu Button */}
-      <button
-        className="menu-toggle-btn"
-        onClick={() => setShowHistory((prev) => !prev)}
-        aria-label="Toggle chat history sidebar"
-      >
-        ☰
-      </button>
-
-      {/* History Sidebar */}
-      <div className={`history-sidebar ${showHistory ? 'visible' : 'hidden'}`}>
-        <div className="history-header">
-          <h3>Chat History</h3>
-          <button className="btn clear-history-btn" onClick={clearHistory}>
-            Clear History
+      {/* Sidebar */}
+      <div className={`sidebar ${showSidebar ? 'sidebar-open' : ''}`}>
+        <div className="sidebar-header">
+          <button className="new-chat-btn" onClick={startNewChat}>
+            <span className="icon">+</span>
+            New Chat
           </button>
         </div>
-        <div className="history-list">
-          {history.length === 0 ? (
-            <div className="no-history">No chat history available</div>
-          ) : (
-            history.map((item, index) => (
-              <div
-                key={index}
-                className="history-item"
-                onClick={() => loadHistoryMessage(item)}
-              >
-                <div className="history-message-preview">
-                  {item.message.length > 50
-                    ? item.message.substring(0, 50) + '...'
-                    : item.message}
-                </div>
-                <div className="history-response-preview">
-                  {item.response.length > 80
-                    ? item.response.substring(0, 80) + '...'
-                    : item.response}
-                </div>
-                <div className="history-timestamp">{formatTimestamp(item.timestamp)}</div>
-              </div>
-            ))
-          )}
+
+        <div className="sidebar-content">
+          <div className="sidebar-actions">
+            <button className="clear-history-btn" onClick={clearHistory}>
+              <span className="icon">🗑️</span>
+              Clear History
+            </button>
+          </div>
+
+          <div className="history-section">
+            <h3>Chat History</h3>
+            <div className="history-list">
+              {history.length === 0 ? (
+                <div className="no-history">No chat history available</div>
+              ) : (
+                history.map((item, index) => (
+                  <div
+                    key={index}
+                    className="history-item"
+                    onClick={() => loadHistoryMessage(item)}
+                  >
+                    <div className="history-message">
+                      {item.message.length > 40
+                        ? item.message.substring(0, 40) + '...'
+                        : item.message}
+                    </div>
+                    <div className="history-timestamp">
+                      {formatTimestamp(item.timestamp)}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="sidebar-footer">
+          <button className="logout-btn" onClick={logout}>
+            <span className="icon">🚪</span>
+            Logout
+          </button>
         </div>
       </div>
 
+      {/* Sidebar Overlay for Mobile */}
+      {showSidebar && <div className="sidebar-overlay" onClick={() => setShowSidebar(false)}></div>}
+
       {/* Main Chat Area */}
-      <div className="chat-main">
+      <div className="main-chat">
         {/* Header */}
         <div className="chat-header">
-          <div className="chat-title">
+          <button
+            className="menu-toggle"
+            onClick={() => setShowSidebar(!showSidebar)}
+          >
+            <span className="hamburger">☰</span>
+          </button>
+          <div className="header-title">
             <h1>Medical Chat Assistant</h1>
             <p>Ask me about health and medical topics</p>
           </div>
-          <div className="chat-actions">
-            <button
-              className="btn toggle-history-btn desktop-only"
-              onClick={() => setShowHistory((prev) => !prev)}
-            >
-              {showHistory ? 'Hide' : 'Show'} History
-            </button>
-            <button className="btn clear-chat-btn" onClick={clearChat}>
-              Clear Chat
-            </button>
-            <button className="btn logout-btn" onClick={logout}>
-              Logout
-            </button>
-          </div>
+          <div className="header-spacer"></div>
         </div>
 
         {/* Messages Area */}
         <div className="messages-area">
           {messages.length === 0 ? (
             <div className="welcome-message">
-              <h3>Welcome to Medical Chat Assistant</h3>
+              <div className="welcome-icon">🏥</div>
+              <h2>Welcome to Medical Chat Assistant</h2>
               <p>
                 I can help you with medical questions, health concerns, symptoms,
                 treatments, and wellness topics.
               </p>
               <div className="examples">
-                <p>
-                  <strong>Examples:</strong> "What are the symptoms of diabetes?", "How to
-                  treat a headache?", "First aid for burns"
-                </p>
+                <p><strong>Try asking:</strong></p>
+                <ul>
+                  <li>"What are the symptoms of diabetes?"</li>
+                  <li>"How to treat a headache?"</li>
+                  <li>"First aid for burns"</li>
+                </ul>
               </div>
             </div>
           ) : (
             messages.map((message) => (
               <div
                 key={message.id}
-                className={`message-item ${message.isUser ? 'user-message' : 'bot-message'}`}
+                className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}
               >
                 <div className="message-content">
-                  <p>{message.isUser ? message.message : message.response}</p>
-                  <div className="message-timestamp">{formatTimestamp(message.timestamp)}</div>
+                  <div className="message-text">
+                    {message.isUser ? message.message : message.response}
+                  </div>
+                  <div className="message-timestamp">
+                    {formatTimestamp(message.timestamp)}
+                  </div>
                 </div>
               </div>
             ))
           )}
 
           {isLoading && (
-            <div className="loading-indicator">
-              <div>
-                <p>🤔 Thinking...</p>
+            <div className="message bot-message">
+              <div className="message-content">
+                <div className="typing-indicator">
+                  <div className="typing-dot"></div>
+                  <div className="typing-dot"></div>
+                  <div className="typing-dot"></div>
+                  <span>AI is thinking...</span>
+                </div>
               </div>
             </div>
           )}
@@ -294,29 +310,34 @@ const Chat = () => {
         </div>
 
         {/* Error Display */}
-        {error && <div className="error-message">⚠️ {error}</div>}
+        {error && (
+          <div className="error-message">
+            <span className="error-icon">⚠️</span>
+            {error}
+          </div>
+        )}
 
         {/* Input Area */}
         <div className="input-area">
-          <div className="input-wrapper">
+          <div className="input-container">
             <textarea
-              className="chat-input"
+              className="message-input"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me about your health concerns, symptoms, treatments, or medical questions..."
-              rows="3"
+              rows="1"
               disabled={isLoading}
             />
             <button
-              className="send-button"
+              className="send-btn"
               onClick={sendMessage}
               disabled={isLoading || !inputMessage.trim()}
             >
-              {isLoading ? 'Sending...' : 'Send'}
+              <span className="send-icon">➤</span>
             </button>
           </div>
-          <div className="input-info">
+          <div className="input-footer">
             Press Enter to send • This assistant only responds to medical and health-related questions
           </div>
         </div>

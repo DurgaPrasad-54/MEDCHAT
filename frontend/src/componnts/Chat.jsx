@@ -6,7 +6,7 @@ const Chat = () => {
   const API_PATH = import.meta.env.VITE_REACT_API_URL;
   const navigate = useNavigate();
 
-  // ✅ Redirect if no token
+
   const token = localStorage.getItem('token');
   if (!token) {
     navigate('/');
@@ -187,6 +187,11 @@ const Chat = () => {
       {/* Sidebar */}
       <div className={`sidebar ${showSidebar ? 'sidebar-open' : ''}`}>
         <div className="sidebar-header">
+          <div className="sidebar-header-top">
+            <button className="close-sidebar-btn" onClick={() => setShowSidebar(false)}>
+              <span className="icon">×</span>
+            </button>
+          </div>
           <button className="new-chat-btn" onClick={startNewChat}>
             <span className="icon">+</span>
             New Chat
@@ -200,6 +205,7 @@ const Chat = () => {
               Clear History
             </button>
           </div>
+          
 
           <div className="history-section">
             <h3>Chat History</h3>
@@ -250,7 +256,7 @@ const Chat = () => {
             <span className="hamburger">☰</span>
           </button>
           <div className="header-title">
-            <h1>Medical Chat Assistant</h1>
+            <h1>MedChat Assistant</h1>
             <p>Ask me about health and medical topics</p>
           </div>
           <div className="header-spacer"></div>
@@ -261,7 +267,7 @@ const Chat = () => {
           {messages.length === 0 ? (
             <div className="welcome-message">
               <div className="welcome-icon">🏥</div>
-              <h2>Welcome to Medical Chat Assistant</h2>
+              <h2>Welcome to MedChat Assistant</h2>
               <p>
                 I can help you with medical questions, health concerns, symptoms,
                 treatments, and wellness topics.

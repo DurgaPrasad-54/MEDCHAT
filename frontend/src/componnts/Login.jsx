@@ -80,7 +80,7 @@ const Login = () => {
         <div className="auth-header">
           <div className="medical-icon">🏥</div>
           <h1>Welcome Back</h1>
-          <p>Sign in to your Medical Chat Assistant account</p>
+          <p>Sign in to your MedChat Assistant account</p>
         </div>
 
         <form className="form" onSubmit={handlesubmit}>

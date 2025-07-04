@@ -13,7 +13,7 @@ BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-f
 
 def is_medical_query(prompt: str) -> bool:
     """
-    Check if the prompt is related to medical/health topics
+    Check if the prompt is related to medical/health/greetings topics
     """
     prompt_lower = prompt.lower()
     
@@ -22,8 +22,8 @@ def is_medical_query(prompt: str) -> bool:
         # General medical terms
         'health', 'medical', 'medicine', 'doctor', 'hospital', 'clinic', 'patient',
         'diagnosis', 'treatment', 'therapy', 'prescription', 'medication', 'drug',
-        'surgery', 'operation', 'procedure', 'examination', 'test', 'screening',
-        'hi','hello','hey','hi there','howdy','greetings','what\'s up',
+        'surgery', 'operation', 'procedure', 'examination', 'test', 'screening'
+        
         
         # Symptoms and conditions
         'symptom', 'pain', 'ache', 'fever', 'headache', 'nausea', 'vomit', 'diarrhea',
@@ -60,6 +60,14 @@ def is_medical_query(prompt: str) -> bool:
         # Nutrition and wellness
         'nutrition', 'vitamin', 'mineral', 'diet', 'weight loss', 'weight gain',
         'exercise', 'fitness', 'wellness', 'healthy lifestyle'
+        # Greetings and common phrases
+        'hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening',
+        'how are you', 'how is it going', 'what\'s up', 'how can I help', 'nice to meet you',
+        'thank you', 'please', 'goodbye', 'see you later', 'take care', 'have a nice day',
+        'welcome', 'greetings', 'howdy', 'salutations', 'what can I do for you',
+        'how can I assist', 'how may I help', 'what\'s new', 'what\'s happening',
+        'how\'s it going', 'how have you been', 'long time no see', 'good to see you',
+        'pleased to meet you', 'thanks for reaching out', 'appreciate your help',
     ]
     
     # Check for medical keywords

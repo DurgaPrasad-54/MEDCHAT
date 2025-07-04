@@ -75,7 +75,7 @@ const Register = () => {
         <div className="auth-header">
           <div className="medical-icon">🏥</div>
           <h1>Create Account</h1>
-          <p>Join Medical Chat Assistant for personalized healthcare support</p>
+          <p>Join MedChat Assistant for personalized healthcare support</p>
         </div>
 
         <form className="form" onSubmit={handlesubmit}>

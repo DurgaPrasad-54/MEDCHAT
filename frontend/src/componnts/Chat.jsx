@@ -135,7 +135,7 @@ const Chat = () => {
     };
 
     setMessages([userMessage, botMessage]);
-    setShowSidebar(false); // Close sidebar on mobile after selecting
+    setShowSidebar(false); 
   };
 
   const formatTimestamp = (timestamp) => {
@@ -145,7 +145,7 @@ const Chat = () => {
   const startNewChat = () => {
     setMessages([]);
     setError('');
-    setShowSidebar(false); // Close sidebar on mobile
+    setShowSidebar(false); 
   };
 
   const clearHistory = async () => {

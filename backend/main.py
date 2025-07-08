@@ -32,14 +32,12 @@ if not MONGODB_NAME:
 if not JWT_SECRET:
     raise EnvironmentError("TOKEN not found in environment")
 
-# MongoDB client and collections
 try:
     client = MongoClient(MONGODB_URL)
     db = client[MONGODB_NAME]
     Model = db["users"]
     ModelHistory = db["history"]
     
-    # Test connection
     client.admin.command('ping')
     logging.info("MongoDB connection successful")
 except Exception as e:
@@ -48,22 +46,15 @@ except Exception as e:
 
 app = FastAPI(title="Chat API", version="1.0.0")
 
-# CORS middleware for frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to your frontend origin in production
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Request model for chat messages
 class ChatRequest(BaseModel):
     message: str
-
-# ====================
-# Routes
-# ====================
 
 @app.get("/health")
 def health_check():
@@ -75,11 +66,7 @@ async def register(user: User):
         existing_email = Model.find_one({"email": user.email})
         if existing_email:
             raise HTTPException(status_code=400, detail="Email already exists")
-
-        # Hash password
         hashed_password = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        
-        # Insert user with created_at timestamp
         user_data = {
             "username": user.username,
             "email": user.email,
@@ -103,12 +90,12 @@ async def register(user: User):
 @app.post("/login")
 async def login(user: Userlog):
     try:
-        # Find user by email
+
         existing_user = Model.find_one({"email": user.email})
         if not existing_user:
             raise HTTPException(status_code=400, detail="Invalid email or password")
 
-        # Verify password
+
         stored_password = existing_user["password"]
         if isinstance(stored_password, str):
             stored_password = stored_password.encode("utf-8")
@@ -116,7 +103,6 @@ async def login(user: Userlog):
         if not bcrypt.checkpw(user.password.encode("utf-8"), stored_password):
             raise HTTPException(status_code=400, detail="Invalid email or password")
 
-        # Create JWT token
         token_data = {
             "id": str(existing_user["_id"]),
             "email": existing_user["email"],
@@ -149,14 +135,11 @@ async def chat_endpoint(
     user = verify_token(token)
     
     try:
-        # Validate input
         if not data.message or not data.message.strip():
             raise HTTPException(status_code=400, detail="Message cannot be empty")
         
-        # Get response from Gemini
         reply = await ask_gemini(data.message.strip())
 
-        # Save chat history
         history_data = {
             "userId": user["id"],
             "message": data.message.strip(),
@@ -186,7 +169,7 @@ async def get_history(token: str = Depends(oauth2_scheme)):
             ModelHistory.find(
                 {"userId": user["id"]},
                 {"_id": 0, "message": 1, "response": 1, "timestamp": 1},
-            ).sort("timestamp", -1).limit(100)  # Limit to last 100 messages
+            ).sort("timestamp", -1).limit(100)  
         )
         
         return {

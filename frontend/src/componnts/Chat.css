@@ -441,6 +441,7 @@ body {
 
 /* Input Area */
 .input-area {
+  position: fixed;
   padding: 20px;
   background: #ffffff;
   border-top: 1px solid #e2e8f0;
@@ -448,6 +449,7 @@ body {
 }
 
 .input-container {
+  position:fixed;
   display: flex;
   gap: 12px;
   align-items: flex-end;

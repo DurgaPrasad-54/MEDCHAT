@@ -236,7 +236,6 @@ const Chat = () => {
 
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={logout}>
-            <span className="icon">🚪</span>
             Logout
           </button>
         </div>
@@ -266,7 +265,7 @@ const Chat = () => {
         <div className="messages-area">
           {messages.length === 0 ? (
             <div className="welcome-message">
-              <div className="welcome-icon">🏥</div>
+              <div className="welcome-icon"></div>
               <h2>Welcome to MedChat Assistant</h2>
               <p>
                 I can help you with medical questions, health concerns, symptoms,
@@ -331,7 +330,7 @@ const Chat = () => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me about your health concerns, symptoms, treatments, or medical questions..."
+              placeholder="Ask me about your health concerns"
               rows="1"
               disabled={isLoading}
             />
@@ -344,7 +343,6 @@ const Chat = () => {
             </button>
           </div>
           <div className="input-footer">
-            Press Enter to send • This assistant only responds to medical and health-related questions
           </div>
         </div>
       </div>
